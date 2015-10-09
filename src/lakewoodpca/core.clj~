@@ -1,0 +1,353 @@
+(ns lakewoodpca.core
+  (:use [hiccup.core]
+        [hiccup.page]
+        [hiccup.form]
+        [hiccup.util])
+  (:gen-class))
+
+;(require '[hiccup.core :as html])
+(require '[hiccup-bridge.core :as hicv])
+
+;;; Standard global variables
+(def domain "lakewoodpres.com")
+(def home-page "index.html")
+(def last-page "contact-us.html")
+(def school "Lakewood Presbyterian School")
+(def email "allthewayhome@sbcglobal.net")
+(def phone "214-321-2864")
+(def address1 "7020 Gaston Avenue")
+(def address2 "Dallas, TX 75214")
+(def quote "Train up a child in the way he should go, And when he is old he will not depart from it.")
+(def quote-source "Proverbs 22:6")
+
+(def headmaster "Arnie Robertstad")
+(def elementary-principal "Edie Robertstad")
+(def elementary-admissions-director "Janice Gilbert")
+(def secretary "Nina Vail")
+
+;;Social
+(def facebook "https://www.facebook.com/lakewood.presbyterian")
+
+(def embed-google-map
+  [:iframe
+   {:src
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3353.1525332960196!2d-96.73630469999999!3d32.81472319999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x864ea1f0de6e45f7%3A0x729572b600689065!2s7020+Gaston+Ave%2C+Dallas%2C+TX+75214!5e0!3m2!1sen!2sus!4v1444335292567",
+    :width "500",
+    :height "450",
+    :frameborder "0",
+    :style "border:0",
+    :allowfullscreen "allowfullscreen"}])
+  
+;;; Link generating stuff
+
+(defn get-page
+  "Accessor to find an item in the vector of vectors."
+  [filename all-pages]
+  (first (filter (fn [i] (= (first i) filename)) all-pages)))
+
+(defn gen-menu-link
+  "Returns the appropiate style of link. If the target page is the current one, 
+  it adds a different marking."
+  [target-page current-page]
+  (if (= target-page current-page)
+    [:li.current [:a {:href (first current-page)} (second current-page)]]
+    [:li         [:a {:href (first current-page)} (second current-page)]]))
+
+(defn gen-menu [filename all-pages]
+  (let [target-page (get-page filename all-pages)]
+    [:ul
+     (map (fn [i] (gen-menu-link target-page i)) all-pages)]))
+
+(defn gen-footer-link
+  [last-page current-page]
+  ;; crying for a macro...
+  (if (= last-page current-page)
+    [:li.last [:a {:href (first current-page)} (second current-page)]]
+    [:li      [:a {:href (first current-page)} (second current-page)]]))
+
+(defn gen-footer-menu [last-filename all-pages]
+  (let [target-page (get-page last-filename all-pages)]
+    [:ul
+     (map (fn [i] (gen-footer-link target-page i)) all-pages)]))
+
+;;; Boilerplate content generators
+
+(defn gen-head []
+  [:head
+     [:title school]
+     [:meta {:charset "UTF-8"}]
+     [:link
+      {:rel "stylesheet", :type "text/css", :href "styles/style.css"}]
+   "<!--[if IE 6]><link rel=\"stylesheet\" type=\"text/css\" href=\"styles/ie6.css\" /><![endif]-->"])
+
+(defn gen-banner []
+  [:div#section
+   [:div
+    [:a
+     {:href "index.html"} ; stays the same
+     [:img {:src "images/logo.gif", :alt ""}]]]
+   [:span address1
+    [:br] address2
+    [:br] phone
+    [:br] email]
+   ])
+
+(defn standard-header [filename all-pages]
+  [:div#header
+   (gen-banner)
+   (gen-menu filename all-pages)])
+
+(defn index-header [filename all-pages]
+  [:div#header
+   (gen-banner)
+   (gen-menu filename all-pages)
+   [:div#tagline
+    [:div
+     [:h4 quote-source]
+     [:p quote]]]])
+
+(defn gen-footer [filename all-pages]
+  [:div#footer
+   [:div
+    [:div#connect " " ; these spaces are on purpose, don't remove!
+     [:a {:href facebook}
+      [:img {:src "images/icon-facebook.gif", :alt ""}]]
+     " "
+     [:a {:href "#"}
+      [:img {:src "images/icon-twitter.gif", :alt ""}]]
+     " "
+     [:a {:href "#"}
+      [:img {:src "images/icon-youtube.gif", :alt ""}]]
+     " "]
+    [:div.section
+     (gen-footer-menu last-page all-pages)
+     [:p "Copyright © " [:a {:href "#"} domain] " - All Rights Reserved"]]]])
+
+;;; Actual pages for the website.
+;;; Since the index page is unique, I won't create a macro
+
+(defn index-page [filename all-pages]
+  [:html
+   (gen-head)
+    [:body
+     [:div#page
+      (index-header filename all-pages)
+      [:div#content
+       [:div#home
+        [:div
+         [:div#aside
+          [:div
+           [:h1 "Welcome to " [:span.last school]]
+           [:a {:href "#"} [:img {:src "images/model1.jpg", :alt ""}]]
+           [:p
+            "Lakewood Presbyterian School is a Christian school offering instruction in grades kindergarten through twelve. It is a ministry of the Lakewood Presbyterian Church (PCA) and operates under the authority of the Session, the governing board, of that Church. The Church is committed to the Westminster Confession of Faith, together with the Larger and Shorter Catechisms. Under the Bible, these provide the perspective from which we teach. The pastor of the Church is also the headmaster of the school. Teachers are approved by the Session."]]
+          [:ul
+           [:li
+            [:h2 [:a {:href "#"} "PERSPECTIVE " [:span.last "AND PURPOSE"]]]
+            [:p
+             "God has given to parents and to the Church the responsibility to teach their children. The Bible states the goal of the nurture of children in several ways: to love God with heart, mind, soul and strength; to possess and grow in wisdom; to be disciples who observe all things that the Lord commanded them; to exercise a godly dominion over creation; to take every thought captive to Christ; to love their neighbor as themselves; and to be conformed to the image of Christ."]
+            [:p "At the heart of the task of Christian education are God’s Word, the Bible, and instruction in it. It is God’s authoritative statement of truth. Skills must be developed and understanding gained in light of God’s Word. Christian education must develop the natural and spiritual gifts of the students. It needs to impart to the students an understanding of God’s world, His creation, which He sovereignly rules and governs for our good and His glory. And it should advance the students’ understanding of the hearts of men."]
+            [:p "Lakewood Presbyterian School does not presume to accomplish this task alone. It assumes that the student’s family and Church will carry the primary weight of spiritual formation. The school intends to conduct the intellectual training of its students in ways consistent with and supportive of the long Christian tradition of the West and practices of faithful parents and Churches."]
+            [:p "The experience of twenty years of conducting the school has shown us that the best predictor of the success of a student at  Lakewood is his discipline.  A sufficient combination of self-discipline and parentally  imposed discipline will be necessary to complete the required work"]]
+           [:li
+            [:h2
+             [:a
+              {:href "#"} [:span.last "PROSPECTS FOR SUCCESS"]]]
+            [:p
+             "Experience has shown us that the best predictor of the success of a student at Lakewood is his discipline. A sufficient combination of self-discipline and parentally imposed discipline will be necessary to complete the required work."][:br][:br]]
+           [:li
+            [:h2
+             [:a
+              {:href "#"} [:span.last "FACULTY"]]]
+            [:p
+             [:ul
+              [:li "Headmaster: " headmaster]
+              [:li "Elementary Principal: " elementary-principal]
+              [:li "Admissions Director: " elementary-admissions-director]
+              [:li "Secretary: " secretary]
+              ]]]
+            [:li
+             [:p [:ul [:li "Phone: " phone] [:li "Email: " email]]]
+             [:p "Address: " [:ul [:li address1] [:li address2]]]
+             [:p "Open on " [:a {:href "https://goo.gl/maps/3nGr3gXAYy52"} "Google Maps"]] 
+             
+             ]
+           ]]
+         [:div#calendar
+          [:h3 "School Calendar"]
+          [:ul
+           [:li
+            [:div
+             " "
+             [:span "1" [:br] "\n                Jan"]
+             [:h2 [:a {:href "#"} "Not Implemented Yet."]]]
+            [:p
+             "Calendar coming soon."]]
+           ]]
+         ]]]
+      (gen-footer filename all-pages)
+      ]]])
+
+;;; Other pages
+
+(defmacro standard-page
+  "Wrapper around standard pages for the template."
+  [filename all-pages & content]
+  `[:html
+    (gen-head)
+    [:body
+     [:div#page
+      (standard-header ~filename ~all-pages)
+      [:div#content [:div ~@content]]
+      (gen-footer ~filename ~all-pages)]]])
+
+(defn about-page [filename all-pages]
+  (standard-page
+   filename
+   all-pages
+   [:h3 "About " school]
+   [:div.first
+    " "
+    [:a {:href "#"} [:img {:src "images/model1.jpg", :alt ""}]]
+    [:h1 "CURRICULUM"]
+    [:p
+     "At the elementary level our classes concentrate on gaining basic skills and on mastering essential facts."]]
+   [:div
+    [:h2 "KINDERGARTEN THROUGH 2ND GRADE"]
+    [:p
+     "Our four and five year old kindergarten class is a one or two year program, depending upon the age a child enrolls. Children must be four by July 1st to begin the four year old kindergarten and five to start our five year old kindergarten. Children will be accepted based upon the school’s determination of a child’s readiness. In kindergarten and grades one and two, phonics, reading and writing skills, and math are the main subjects taught. Science, history, geography, music, and art are introduced. A weekly music class teaches singing and enjoyable rhythmic activities. The children get to perform in music programs twice a year. Once a week the boys have a sports class while the girls take ballet."]]
+   [:div
+    [:h2 "3RD THROUGH 6TH GRADES"]
+    [:p
+     "In the middle and upper elementary grades the subjects are:"
+     [:ul
+      [:li [:h4 "Arithmetic:"] "We use the Saxon curriculum. We place each
+student according to his math level."]
+      [:li [:h4 "English:"] "We emphasize grammar and the reading of classical literature."[:p]]
+      [:li [:h4 "History and Geography:"] "This is taught from a classical Christian worldview. We survey history from biblical to modern times, noting major people, events, and dates. We teach both United States and world geography."]
+      [:li [:h4 "Science:"] "We begin the exploration of God’s creation."]
+      [:li [:h4 "Art:"] "Art is integrated into various classes. A weekly music class prepares the students for public programs in the winter and spring."]]]]
+   [:div
+    [:h2 "7th THROUGH 12TH GRADES"]
+    [:p
+     "The secondary classes (grades 7 – 12) aim at understanding and expression in the various subjects."
+     [:ul
+      [:li [:h4 "Literature and History:"] "These classes all include composition. They proceed through the following eras: Biblical (7th and 8th); Classical, Patristic, and Medieval (9th and 10th); and Reformation, Enlightenment, and Modern (11th and 12th)."]
+      [:li [:h4 "Science:"] "The classes are: Horticulture (7th and 8th), Physical Science and Biology (9th and 10th), and Chemistry and Physics (11th and 12th)."[:p]]
+      [:li [:h4 "Mathematics:"] "We use the Saxon textbooks and place the student according to his mathematical competence rather than by grade level. The courses range from pre-algebra through analytical geometry and trigonometry."]
+      [:li [:h4 "Latin:"] "The Latin classes progress from learning the rudiments of the language through reading the literature of classical and ecclesiastical Latin.."]
+      [:li [:h4 "Music:"] "Two levels of classes involve students in the fundamentals of music and its history through appreciation and participation."]]
+     [:br][:br]
+     [:p "We conduct a drama class, select choir, athletics and a student produced yearbook throughout the year at times outside of our regular hours."]
+     [:p "The school maintains transcripts only for high school level work, which can count towards graduation."]
+     ]]
+   [:div
+    [:h2 "THE SCHEDULE"]
+    [:p "The school year is divided into trimesters that begin the Tuesday after Labor Day and continue through the fourth week of May. Vacations include the week of Thanksgiving, three weeks at Christmas, the week between Palm Sunday and Easter, Texas Independence Day, and a day in early May for the school play. Additional days off may be announced as needed."][:br]
+    [:p "Classes meet between 8:00am and 12noon, Tuesday through Friday. Our classes utilize a pairing of grades (i.e. 1st & 2nd, 3rd & 4th, etc.). Due to the shorter school day, we place a heavier emphasis on homework than would a daylong school. The homework is lighter in the lower grades, but increases as the student matures."]]
+   [:div
+    [:h2 "FINANCES"]
+    [:p "Tuition: Both elementary and secondary tuition will be $230.00 a month for 9 months. A $20 discount is given for second and subsequent students in the same family."]
+    [:br]
+    [:p "Student Fee: All students will pay a general fee of $460."]
+    [:br]
+    [:p "The payments are due for continuing students as follows:"][:br]
+    [:ul
+     [:li "1st payment of ½ Fee due May 1st – $230"][:br]
+     [:li "2nd payment of ½ Fee due June 1st – $230"][:br]
+     [:li "First Tuition payment due July 1st – $230"][:br]
+     [:li "Second Tuition payment due August 1st – $230"][:br]]
+    [:p "Tuition payments are due the first school day of each month thereafter through March."]]
+   [:div
+    [:h2 "ENROLLMENT PROCESS"]
+    [:p "Inquiries about admission should be made to the office of the school. Prospective parents will set an appointment to observe the school. Then, parents must submit applications for all students and transcripts, for secondary students entering the 10th, 11th, or 12th grades. An interview with the elementary admissions director or headmaster, including placement testing (if needed), will be conducted. If mutually acceptable, parents, students, and the school official will sign the enrollment covenant and the parents will pay the student fees and the first month’s tuition, at which time the student(s) may be considered enrolled. All monies paid are non-refundable."]]
+   [:div
+    [:h2 "STUDENT CODE OF BEHAVIOR"]
+    [:p "Student behavior will be held to the standard of the Law of God, as expressed summarily in the two great commandments and in the Ten Commandments. While each individual is responsible for his own behavior, those in positions of authority (the teachers and administrators of the school) are also responsible “to endeavor that it (what is forbidden or commanded to ourselves) may be avoided or performed by others, according to the duty of their places.” Larger Catechism, 99"][:br]
+    [:p "For this reason the faculty of the school will work with the student in keeping with the Larger Catechism, 129:"][:br]
+    [:p.span.big-quote "It is required of superiors, according to that power they receive from God, and that relation wherein they stand, to love, pray for, and bless their inferiors: to instruct, counsel, and admonish them; countenancing, commending, and rewarding such as do well, and discountenancing, reproving,  and  chastising such as do ill; protecting and providing for them all things necessary for soul and body; and by grave, wise, holy and exemplary carriage, to procure glory to God, honor to them-selves so to preserve that authority which God hath put upon them."][:br]
+    [:h4 "Of the students the following is expected:"]
+    [:p
+     [:ul
+      [:li "The honor which inferiors owe to their superiors is, all due reverence in heart, word, behavior; prayer and thanksgiving for them; imitation of their virtues and graces; willing obedience to their lawful commands and counsels; due submission to their corrections; fidelity to, defense and maintenance of their persons and authority, according to their several ranks, and the nature of their places; bearing with their several ranks, and the covering them, in love, so that they may be an honor to them and to their government. Larger Catechism, 127"][:br]
+      [:li "Attitudes and behavior to be avoided by students include: The sins of inferiors against their superiors are, all neglect of the duties required toward them; envying at, contempt of, and rebellion against their persons and places, in their lawful counsels, commands and corrections; cursing, mocking, and all such refractory and scandalous carriage, as proves a shame and dishonor to them and their government. Larger Catechism, 128"]
+      [:li "Students will always be on their honor to do their work according to the rules of the assignment."][:br]
+      [:li "The elementary grades (K – 6) are required to wear uniforms."][:br]
+      [:li "The dress of secondary students is regulated to this extent:"][:br]
+      [:li "Girls: Blouses or sweaters must be long enough to be tucked in. They must be opaque. Shirts must come to the base of the neck. Dresses or skirts must be to mid-knee. Slacks must be worn at the waist; leggings are not considered trousers or pants but hosiery. Shorts are not permitted."][:br]
+      [:li "Boys: Shirts must be long enough to be tucked in. They must be opaque. No “tank tops.” Pants must be worn at the waist. Shorts are not permitted."][:br]
+      [:li "Radios, MP3 players, tape players, CD players, cell phones and other electronic devices (excepting calculators and computers) may not be brought into the school."][:br]
+      ]]
+    [:h4 "Particular instructions may be given for situations not covered by these rules."]
+    [:p "By accepting enrollment in the school the student is giving his willing consent to be held to these standards under the ministry of the faculty. Should discipline beyond the verbal prove necessary, the student may expect to be removed from class or sent home. Upon major breaches of the standards or contumacious behavior, the student may (after conference with parents) be suspended or expelled."]
+    ]
+   [:div
+    [:h2 "PROSPECTS FOR SUCCESS"]
+    [:p "Experience has shown us that the best predictor of the success of a student at Lakewood is his discipline. A sufficient combination of self-discipline and parentally imposed discipline will be necessary to complete the required work."]]
+   ))
+
+
+(defn admissions-page [filename all-pages]
+  (standard-page
+   filename
+   all-pages
+   [:h3 "Admissions"]
+   [:div.first
+    " "
+    [:a {:href "#"} [:img {:src "images/model1.jpg", :alt ""}]]
+    [:h1 "ENROLLMENT FORM"]
+    [:p
+     "Enrollment Forms must be filled out and submitted to the office for consideration of admission. The completed form places a child on the 'wait' list. Once approval has been met and the appropriate monies received the student’s place is secured. You may drop this off in the school office during school hours OR mail it to the school. Money is not required until the spot has been offered to the student."]
+    [:br]
+    [:p "Download the enrollment form "
+     [:a {:href "files/EnrollmentApplication.pdf"} "HERE."]]
+    ]
+   ))
+
+
+(defn under-construction-page [filename all-pages]
+  (standard-page
+   filename
+   all-pages
+   [:h3 "Under Construction"]
+   [:div.first
+    " "
+    [:a {:href "#"} [:img {:src "images/model1.jpg", :alt ""}]]
+    [:h1 "COMING SOON"]
+    [:p
+     "Please pardon our mess while we continue to migrate our site to the new platform.  New content will be coming shortly."]]
+   ))
+
+(defn test-page [filename all-pages]
+  (standard-page
+   filename
+   all-pages
+   [:h3 "TESTING"]
+   [:p "New Stuff!"]))
+
+;;; Here's where we actually define each link, in order. Each link has a title
+;;; and a template page function.
+
+(def all-pages [
+                [home-page "Home" index-page]
+                ["about.html" "About Us" about-page]
+                ["admissions.html" "Admissions" admissions-page]
+                ["elementary.html" "Elementary" under-construction-page]
+                ["secondary-school.html" "Secondary School" under-construction-page]
+                ["school-calendar.html" "School Calendar" under-construction-page]
+                ;["test.html" "Test Page" test-page]
+                [last-page "Contact Us" under-construction-page]
+                ])
+
+(defmacro write-page
+  "Our main page generation function."
+  [filename template all-pages]
+  `(spit (str "resources/" ~filename) (html5 (~template ~filename ~all-pages))))
+
+(defn -main
+  "This will create a html file for every page in all-pages."
+  []
+  (doseq [page all-pages]
+    (write-page (first page) (nth page 2) all-pages)))
+
+(-main)
