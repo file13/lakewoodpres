@@ -1,7 +1,7 @@
 # lakewoodpca
 
 A Clojure library designed to generate the church school's website,
-lakewoodpca.com. I'm putting the code here in case someone else needs to take it over.
+lakewoodpres.com. I'm putting the code here in case someone else needs to take it over.
 
 ## Usage
 
